@@ -10,8 +10,8 @@ def rgb2gray(img):
 
 def preprocess(img):
    img = rgb2gray(img)
-   img = imresize(img, (110, 84), interp='bicubic')
-   img = img[13:-13, :]/255.0
+   img = imresize(img, (110, 84), interp='bicubic')/255.0
+   #img = img[13:-13, :]/255.0
    return img.astype(np.float32)
 
 class Emulator:
@@ -27,22 +27,22 @@ class Emulator:
       reward = 0.0
       for i in range(k):
          state, r, done, _ = self.env.step(action)
-         if r > 0:
-            r = 1
-         elif r < 0:
-            r = -1
          states += [state]
          reward += r
          if done:
             self.env.reset()
             break 
 
+      if r > 0:
+         r = 1
+      elif r < 0:
+         r = -1
 
       if render:
          self.env.render()
 
       states += (k - len(states))*[states[0]]
       states = [preprocess(s) for s in states]
-      states = np.stack(states, 0)
+      states = np.stack(states, 0).astype(np.float32)
       return states, reward, done
 
